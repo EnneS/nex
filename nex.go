@@ -5,6 +5,10 @@ import (
 	"bufio"
 	"errors"
 	"fmt"
+	"go/format"
+	"go/parser"
+	"go/printer"
+	"go/token"
 	"io"
 	"io/ioutil"
 	"log"
@@ -12,12 +16,6 @@ import (
 	"sort"
 	"strconv"
 	"strings"
-)
-import (
-	"go/format"
-	"go/parser"
-	"go/printer"
-	"go/token"
 )
 
 type rule struct {
@@ -113,7 +111,7 @@ func (p RuneSlice) Swap(i, j int)      { p[i], p[j] = p[j], p[i] }
 
 // Print a graph in DOT format given the start node.
 //
-//  $ dot -Tps input.dot -o output.ps
+//	$ dot -Tps input.dot -o output.ps
 func writeDotGraph(outf *os.File, start *node, id string) {
 	done := make(map[*node]bool)
 	var show func(*node)
@@ -442,9 +440,9 @@ func gen(out *bufio.Writer, x *rule) {
 			newNilEdge(end, nend)
 			end = nend
 		case '?':
-                        nstart := newNode()
+			nstart := newNode()
 			newNilEdge(nstart, start)
-                        start = nstart
+			start = nstart
 			newNilEdge(start, end)
 		default:
 			return
@@ -523,7 +521,7 @@ func gen(out *bufio.Writer, x *rule) {
 		visited := make([]bool, n)
 		var do func(int)
 		do = func(i int) {
-                        visited[i] = true
+			visited[i] = true
 			v := short[i]
 			for _, e := range v.e {
 				if e.kind == kNil && !visited[e.dst.n] {
@@ -945,6 +943,9 @@ func (yyLex *Lexer) Stop() {
 
 // Text returns the matched text.
 func (yylex *Lexer) Text() string {
+  if len(yylex.stack) == 0 {
+	return "$end"
+  }
   return yylex.stack[len(yylex.stack) - 1].s
 }
 
